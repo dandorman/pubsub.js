@@ -10,7 +10,7 @@
     if (!this._subscribers || !this._subscribers[event]) return;
 
     var args = Array.prototype.slice.call(arguments, 1);
-    args.unshift(this);
+    args.push(this);
 
     for (var s in this._subscribers[event]) {
       setTimeout((function(callback) {
@@ -21,22 +21,22 @@
     }
   }
 
-  function subscribe(object, event, callback) {
-    if (!object._subscribers) object._subscribers = {};
-    if (!object._subscribers[event]) object._subscribers[event] = {};
+  function subscribe(publisher, event, callback) {
+    if (!publisher._subscribers) publisher._subscribers = {};
+    if (!publisher._subscribers[event]) publisher._subscribers[event] = {};
 
     if (this && this !== window) {
-      unsubscribe.call(this, object, event);
+      unsubscribe.call(this, publisher, event);
       callback = callback.bind(this);
     }
     callback._subscriber = this;
 
     subscription += 1;
 
-    object._subscribers[event][subscription] = callback;
+    publisher._subscribers[event][subscription] = callback;
 
     subscriptions[subscription] = {
-      object: object,
+      publisher: publisher,
       event: event,
       subscriber: this
     };
@@ -44,23 +44,31 @@
     return subscription;
   }
 
-  function unsubscribe(s) {
-    if (this && this !== window) {
-      var publisher = arguments[0];
-      var event = arguments[1];
-      var pub_callbacks = publisher._subscribers[event];
-      for (var idx in pub_callbacks) {
-        if (pub_callbacks[idx]._subscriber == this) {
-          delete publisher._subscribers[event][idx];
-          delete subscriptions[idx];
-          return;
+  function unsubscribe(publisherOrSubscription, event) {
+    var callbacks, s;
+
+    if (arguments.length == 2) {
+      if (!this || this === window) return;
+
+      var publisher = publisherOrSubscription;
+
+      for (s in publisher._subscribers[event]) {
+        if (publisher._subscribers[event][s]._subscriber === this) {
+          callbacks = publisher._subscribers[event];
+          break;
         }
       }
     } else {
+      s = publisherOrSubscription;
+
       if (s in subscriptions) {
-        delete subscriptions[s].object._subscribers[subscriptions[s].event][s];
-        delete subscriptions[s];
+        callbacks = subscriptions[s].publisher._subscribers[subscriptions[s].event];
       }
+    }
+
+    if (callbacks) {
+      delete callbacks[s];
+      delete subscriptions[s];
     }
   }
 

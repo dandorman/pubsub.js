@@ -40,15 +40,28 @@
               }, 0);
             });
 
-            it("includes the publishing object as the first argument to the callback", function(done) {
-              var obj = {};
+            it("passes additional arguments on to its callbacks", function(done) {
+              var obj = {}, notified = false;
 
-              subscribe(obj, 'foo', function(a) {
-                expect(a).to.equal(obj);
+              subscribe(obj, 'foo', function(a, b, c) {
+                expect(a).to.equal(1);
+                expect(b).to.equal(2);
+                expect(c).to.equal(3);
                 done();
               });
 
-              publish.call(obj, 'foo');
+              publish.call(obj, 'foo', 1, 2, 3);
+            });
+
+            it("includes the publishing object as the last argument to the callback", function(done) {
+              var obj = {};
+
+              subscribe(obj, 'foo', function(a, b, c, d) {
+                expect(d).to.equal(obj);
+                done();
+              });
+
+              publish.call(obj, 'foo', 1, 2, 3);
             });
           });
 
@@ -123,6 +136,10 @@
                   done();
                 });
               });
+
+              it("is a no-op when called when given a non-existent key", function() {
+                expect(function() { unsubscribe(-1) }).to.not.throw(ReferenceError);
+              });
             });
 
             describe("when called from an object that is not the global object, and given an object and an event name", function() {
@@ -139,6 +156,10 @@
                   expect(notified).to.be.false;
                   done();
                 });
+              });
+
+              it("is a no-op when called when given a non-subscribed-to event", function() {
+                expect(function() { unsubscribe.call({}, {}, 'foo') }).to.not.throw(ReferenceError);
               });
             });
           });

@@ -52,17 +52,6 @@
 
               publish.call(obj, 'foo', 1, 2, 3);
             });
-
-            it("includes the publishing object as the last argument to the callback", function(done) {
-              var obj = {};
-
-              subscribe(obj, 'foo', function(a, b, c, d) {
-                expect(d).to.equal(obj);
-                done();
-              });
-
-              publish.call(obj, 'foo', 1, 2, 3);
-            });
           });
 
           describe("subscribe", function() {

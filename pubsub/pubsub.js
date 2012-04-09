@@ -10,7 +10,6 @@
     if (!this._subscribers || !this._subscribers[event]) return;
 
     var args = Array.prototype.slice.call(arguments, 1);
-    args.push(this);
 
     for (var s in this._subscribers[event]) {
       setTimeout((function(callback) {

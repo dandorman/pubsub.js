@@ -1,0 +1,22 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pubsub Tests</title>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <link rel="stylesheet" href="mocha.css">
+    <script src="chai.js"></script>
+    <script src="mocha.js"></script>
+    <script>mocha.setup('bdd');</script>
+    <script>
+      var require = {
+        urlArgs: "bust=" + (new Date()).getTime()
+      };
+    </script>
+    <script data-main="pubsub_test.js" src="require.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+  </body>
+</html>

@@ -3,6 +3,7 @@ require(['../pubsub/pubsub'], function(pubsub) {
 
   var expect = chai.expect,
       publish = pubsub.publish,
+      republish = pubsub.republish,
       subscribe = pubsub.subscribe,
       unsubscribe = pubsub.unsubscribe;
 
@@ -132,6 +133,33 @@ require(['../pubsub/pubsub'], function(pubsub) {
       it("is a no-op when called when given a non-subscribed-to event", function() {
         expect(function() { unsubscribe.call({}, {}, 'foo') }).to.not.throw(ReferenceError);
       });
+    });
+  });
+
+  describe("republish", function() {
+    it("subscribes to the publisher's event, and publishes the same event to its own subscribers", function(done) {
+      var publisher = {},
+          republisher = {},
+          subscriber = {};
+
+      republish.call(republisher, publisher, 'foo');
+      subscribe.call(subscriber, republisher, 'foo', function() { done() });
+
+      publish.call(publisher, 'foo');
+    });
+
+    it("passes additional arguments along to proxy subscribers", function(done) {
+      var publisher = {},
+          republisher = {},
+          subscriber = {};
+
+      republish.call(republisher, publisher, 'foo');
+      subscribe.call(subscriber, republisher, 'foo', function(a) {
+        expect(a).to.equal('bar');
+        done();
+      });
+
+      publish.call(publisher, 'foo', 'bar');
     });
   });
 

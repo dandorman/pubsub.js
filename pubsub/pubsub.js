@@ -1,4 +1,4 @@
-(function() {
+define([], function() {
   'use strict';
 
   var subscriptions = {},
@@ -43,6 +43,19 @@
     return subscription;
   }
 
+  function republish(publisher, event) {
+    if (this === window) return;
+
+    subscribe.call(this, publisher, event, (function(republisher) {
+      return function() {
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift(event);
+
+        publish.apply(republisher, args);
+      };
+    }(this)));
+  }
+
   function unsubscribe(publisherOrSubscription, event) {
     var callbacks, s;
 
@@ -71,9 +84,10 @@
     }
   }
 
-  define([], {
+  return {
     publish: publish,
+    republish: republish,
     subscribe: subscribe,
     unsubscribe: unsubscribe
-  });
-})();
+  };
+});

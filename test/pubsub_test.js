@@ -107,7 +107,7 @@ require(['../pubsub/pubsub'], function(pubsub) {
         setTimeout(function() {
           expect(notified).to.be.false;
           done();
-        });
+        }, 0);
       });
 
       it("is a no-op when called when given a non-existent key", function() {
@@ -128,7 +128,7 @@ require(['../pubsub/pubsub'], function(pubsub) {
         setTimeout(function() {
           expect(notified).to.be.false;
           done();
-        });
+        }, 0);
       });
 
       it("is a no-op when called when given a non-subscribed-to event", function() {

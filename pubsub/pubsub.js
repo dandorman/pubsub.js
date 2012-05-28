@@ -84,10 +84,34 @@ define([], function() {
     }
   }
 
+  function cancelSubscriptions(event) {
+    if (!this || this === window) return;
+
+    if (!this._subscribers) return;
+
+    var e, s;
+    var empty = true;
+    for (e in this._subscribers) {
+      if (event === undefined || e === event) {
+        for (s in this._subscribers[e]) {
+          delete this._subscribers[e][s];
+          delete subscriptions[s];
+        }
+
+        delete this._subscribers[e];
+      } else if (event !== undefined) {
+        empty = false;
+      }
+    }
+
+    if (empty) delete this._subscribers;
+  }
+
   return {
     publish: publish,
     republish: republish,
     subscribe: subscribe,
-    unsubscribe: unsubscribe
+    unsubscribe: unsubscribe,
+    cancelSubscriptions: cancelSubscriptions
   };
 });

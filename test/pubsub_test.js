@@ -5,7 +5,8 @@ require(['../pubsub/pubsub'], function(pubsub) {
       publish = pubsub.publish,
       republish = pubsub.republish,
       subscribe = pubsub.subscribe,
-      unsubscribe = pubsub.unsubscribe;
+      unsubscribe = pubsub.unsubscribe,
+      cancelSubscriptions = pubsub.cancelSubscriptions;
 
   describe("publish", function() {
     it("notifies subscribers when events are published", function(done) {
@@ -160,6 +161,72 @@ require(['../pubsub/pubsub'], function(pubsub) {
       });
 
       publish.call(publisher, 'foo', 'bar');
+    });
+  });
+
+  describe("cancelSubscriptions", function() {
+    describe("with no arguments", function() {
+      it("stops publishing any events to any of its current subscribers", function(done) {
+        var publisher = {};
+
+        var subscriber = {};
+        var timesFooCalled = 0;
+        subscribe.call(subscriber, publisher, 'foo', function() {
+          timesFooCalled += 1;
+        });
+
+        var anotherSubscriber = {};
+        var timesBarCalled = 0;
+        subscribe.call(anotherSubscriber, publisher, 'bar', function() {
+          timesBarCalled += 1;
+        });
+
+        publish.call(publisher, 'foo');
+        publish.call(publisher, 'bar');
+
+        cancelSubscriptions.call(publisher);
+
+        publish.call(publisher, 'foo');
+        publish.call(publisher, 'bar');
+
+        setTimeout(function() {
+          expect(timesFooCalled).to.equal(1);
+          expect(timesBarCalled).to.equal(1);
+          done();
+        }, 0);
+      });
+    });
+
+    describe("with a single string argument", function() {
+      it("stops publishing that event to any callbacks currently subscribed to it", function(done) {
+        var publisher = {};
+
+        var subscriber = {};
+        var timesFooCalled = 0;
+        subscribe.call(subscriber, publisher, 'foo', function() {
+          timesFooCalled += 1;
+        });
+
+        var anotherSubscriber = {};
+        var timesBarCalled = 0;
+        subscribe.call(anotherSubscriber, publisher, 'bar', function() {
+          timesBarCalled += 1;
+        });
+
+        publish.call(publisher, 'foo');
+        publish.call(publisher, 'bar');
+
+        cancelSubscriptions.call(publisher, 'foo');
+
+        publish.call(publisher, 'foo');
+        publish.call(publisher, 'bar');
+
+        setTimeout(function() {
+          expect(timesFooCalled).to.equal(1);
+          expect(timesBarCalled).to.equal(2);
+          done();
+        }, 0);
+      });
     });
   });
 

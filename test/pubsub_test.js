@@ -1,16 +1,18 @@
 require(['../pubsub/pubsub'], function(pubsub) {
   'use strict';
 
-  var expect = chai.expect,
-      publish = pubsub.publish,
-      republish = pubsub.republish,
-      subscribe = pubsub.subscribe,
-      unsubscribe = pubsub.unsubscribe,
-      cancelSubscriptions = pubsub.cancelSubscriptions;
+  var expect = chai.expect;
+
+  var publish = pubsub.publish;
+  var republish = pubsub.republish;
+  var subscribe = pubsub.subscribe;
+  var unsubscribe = pubsub.unsubscribe;
+  var cancelSubscriptions = pubsub.cancelSubscriptions;
 
   describe("publish", function() {
     it("notifies subscribers when events are published", function(done) {
-      var obj = {}, notified = false;
+      var obj = {};
+      var notified = false;
 
       subscribe(obj, 'foo', function() {
         notified = true;
@@ -25,7 +27,8 @@ require(['../pubsub/pubsub'], function(pubsub) {
     });
 
     it("passes additional arguments on to its callbacks", function(done) {
-      var obj = {}, notified = false;
+      var obj = {};
+      var notified = false;
 
       subscribe(obj, 'foo', function(a, b, c) {
         expect(a).to.equal(1);
@@ -40,8 +43,8 @@ require(['../pubsub/pubsub'], function(pubsub) {
 
   describe("subscribe", function() {
     it("adds the subscribed callbacks to the object's subscribers", function() {
-      var obj = {},
-          subscriber = function() {};
+      var obj = {};
+      var subscriber = function() {};
 
       var subscription = subscribe(obj, 'foo', subscriber);
 
@@ -50,8 +53,8 @@ require(['../pubsub/pubsub'], function(pubsub) {
     });
 
     it("binds the callback to the calling object when called from an object that is not the global object", function(done) {
-      var publisher = {},
-          subscriber = {};
+      var publisher = {};
+      var subscriber = {};
 
       subscribe.call(subscriber, publisher, 'foo', function() {
         expect(this).to.equal(subscriber);
@@ -69,25 +72,27 @@ require(['../pubsub/pubsub'], function(pubsub) {
       });
 
       it("is unique to each subscription", function() {
-        var a_subscription = subscribe({}, 'foo', function() {}),
-            another_subscription = subscribe({}, 'bar', function() {});
+        var a_subscription = subscribe({}, 'foo', function() {});
+        var another_subscription = subscribe({}, 'bar', function() {});
 
         expect(a_subscription).to.not.equal(another_subscription);
       });
     });
 
     it("replaces existing callbacks if a duplicate subscription is made", function(done) {
-      var publisher = {},
-          subscriber = {},
-          flag_one = false, flag_two = false;
+      var publisher = {};
+      var subscriber = {};
 
-      subscribe.call(subscriber, publisher, 'foo', function() { flag_one = true });
-      subscribe.call(subscriber, publisher, 'foo', function() { flag_two = true });
+      var flagOne = false;
+      var flagTwo = false;
+
+      subscribe.call(subscriber, publisher, 'foo', function() { flagOne = true });
+      subscribe.call(subscriber, publisher, 'foo', function() { flagTwo = true });
       publish.call(publisher, 'foo');
 
       setTimeout(function() {
-        expect(flag_one).to.be.false;
-        expect(flag_two).to.be.true;
+        expect(flagOne).to.be.false;
+        expect(flagTwo).to.be.true;
         done();
       }, 0);
     });
@@ -97,8 +102,8 @@ require(['../pubsub/pubsub'], function(pubsub) {
   describe("unsubscribe", function() {
     describe("when given a subscription key", function() {
       it("does not call the subscribed callback when notified", function(done) {
-        var obj = {},
-            notified = false;
+        var obj = {};
+        var notified = false;
 
         var subscription = subscribe(obj, 'foo', function() { notified = true; });
         unsubscribe(subscription);
@@ -117,9 +122,9 @@ require(['../pubsub/pubsub'], function(pubsub) {
 
     describe("when called from an object that is not the global object, and given an object and an event name", function() {
       it("unsubscribes the calling object from the target object's event", function(done) {
-        var publisher = {},
-            subscriber = {},
-            notified = false;
+        var publisher = {};
+        var subscriber = {};
+        var notified = false;
 
         subscribe.call(subscriber, publisher, 'foo', function() { notified = true; });
         unsubscribe.call(subscriber, publisher, 'foo');
@@ -139,9 +144,9 @@ require(['../pubsub/pubsub'], function(pubsub) {
 
   describe("republish", function() {
     it("subscribes to the publisher's event, and publishes the same event to its own subscribers", function(done) {
-      var publisher = {},
-          republisher = {},
-          subscriber = {};
+      var publisher = {};
+      var republisher = {};
+      var subscriber = {};
 
       republish.call(republisher, publisher, 'foo');
       subscribe.call(subscriber, republisher, 'foo', function() { done() });
@@ -150,9 +155,9 @@ require(['../pubsub/pubsub'], function(pubsub) {
     });
 
     it("passes additional arguments along to proxy subscribers", function(done) {
-      var publisher = {},
-          republisher = {},
-          subscriber = {};
+      var publisher = {};
+      var republisher = {};
+      var subscriber = {};
 
       republish.call(republisher, publisher, 'foo');
       subscribe.call(subscriber, republisher, 'foo', function(a) {

@@ -174,20 +174,11 @@ require(['../pubsub/pubsub'], function(pubsub) {
       it("stops publishing any events to any of its current subscribers", function(done) {
         var publisher = {};
 
-        var subscriber = {};
-        var timesFooCalled = 0;
-        subscribe.call(subscriber, publisher, 'foo', function() {
-          timesFooCalled += 1;
-        });
+        var foo = true;
+        subscribe(publisher, 'foo', function() { foo = false });
 
-        var anotherSubscriber = {};
-        var timesBarCalled = 0;
-        subscribe.call(anotherSubscriber, publisher, 'bar', function() {
-          timesBarCalled += 1;
-        });
-
-        publish.call(publisher, 'foo');
-        publish.call(publisher, 'bar');
+        var bar = true;
+        subscribe(publisher, 'bar', function() { bar = false });
 
         cancelSubscriptions.call(publisher);
 
@@ -195,8 +186,8 @@ require(['../pubsub/pubsub'], function(pubsub) {
         publish.call(publisher, 'bar');
 
         setTimeout(function() {
-          expect(timesFooCalled).to.equal(1);
-          expect(timesBarCalled).to.equal(1);
+          expect(foo).to.be.true;
+          expect(bar).to.be.true;
           done();
         }, 0);
       });
@@ -206,20 +197,11 @@ require(['../pubsub/pubsub'], function(pubsub) {
       it("stops publishing that event to any callbacks currently subscribed to it", function(done) {
         var publisher = {};
 
-        var subscriber = {};
-        var timesFooCalled = 0;
-        subscribe.call(subscriber, publisher, 'foo', function() {
-          timesFooCalled += 1;
-        });
+        var foo = true;
+        subscribe(publisher, 'foo', function() { foo = false });
 
-        var anotherSubscriber = {};
-        var timesBarCalled = 0;
-        subscribe.call(anotherSubscriber, publisher, 'bar', function() {
-          timesBarCalled += 1;
-        });
-
-        publish.call(publisher, 'foo');
-        publish.call(publisher, 'bar');
+        var bar = true;
+        subscribe(publisher, 'bar', function() { bar = false });
 
         cancelSubscriptions.call(publisher, 'foo');
 
@@ -227,8 +209,8 @@ require(['../pubsub/pubsub'], function(pubsub) {
         publish.call(publisher, 'bar');
 
         setTimeout(function() {
-          expect(timesFooCalled).to.equal(1);
-          expect(timesBarCalled).to.equal(2);
+          expect(foo).to.be.true;
+          expect(bar).to.be.false;
           done();
         }, 0);
       });
